@@ -3,7 +3,7 @@
 # 生成加减乘除四则混合运算题，小学二年级用
 # 使用方法  
 #   #python3 suanshuti.py
-#           然受查找当前目录下的sxt.csv，用excel或其他工具打开打印
+#           然受查找当前目录下的sxt.html，用浏览器打开后直接打印；或查找sxt.csv，用excel或其他工具打开打印
 #   #python3 suanshuti.py test 
 #           用于测试，每种类型测试5000道题，看是否会出现小数、负数等，出现会有错误提示
 #   #python3 suanshuti.py sample 
@@ -170,7 +170,7 @@ def printSample():
     for i in range(1, 17):
         print(i, getQuestion(i))
     
-def writeFile():
+def writeCSVFile():
     #一页，共100题
     f = open('sxt.csv', 'wt')
     for row in range(1, 21):
@@ -180,9 +180,36 @@ def writeFile():
         f.write("\n")
     f.close()
 
+def writeHTMLFile():
+    #HTML格式的一页题，100题，用于打印
+    f = open('sxt.html', 'wt')
+    f.write('<!DOCTYPE html>\n<html>')
+    f.write('<head><meta charset="UTF-8">')
+    f.write('<style type="text/css">')
+    f.write('@page{margin: 0.5cm;}')
+    f.write('td{text-align:left;font-size:14px; height:1.3cm; width:50cm;}')
+    f.write('</style>')
+    f.write('</head>')
+    f.write('<body>')
+    
+    f.write('<table cellspacing="0" cellpadding="0">')
+    for row in range(1, 21):
+        f.write('<tr>')
+        for col in range(1, 6):
+            f.write('<td>')
+            f.write(getQuestion(row * col % 16 + 1))
+            f.write("</td>")
+        f.write("</tr>")
+    f.write('</table>')    
+        
+    f.write('</body>')
+    f.write('</html>')
+    f.close()
+    
 #根据命令行参数执行
 if(len(sys.argv) == 1):
-    writeFile()
+    writeCSVFile()
+    writeHTMLFile()
     print("Done.")
 elif(sys.argv[1] == 'test'):
     test()
