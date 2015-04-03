@@ -4,7 +4,9 @@
 ##从git中取maven project，打包并发布到tomcat目录下
 ##
 
-cd /web/git/saofenbao
+gitFolder="/web/git/saofenbao"
+
+cd "$gitFolder"
 git fetch
 git checkout -f origin/develop
 
@@ -16,13 +18,13 @@ fi
 
 
 
-wvjar="/web/git/saofenbao/weixin-velocity/target/clschina-weixin-velocity-1.0.jar"
-admjar="/web/git/saofenbao/saofenbaoadmin/target/clschina-saofenbaoadmin-1.0.jar"
-wxjar="/web/git/saofenbao/saofenbaoweixin/target/clschina-saofenbao-1.0.jar"
-vendorjar="/web/git/saofenbao/saofenbaovendor/target/clschina-saofenbaovendor-1.0.jar"
-apijar="/web/git/saofenbao/saofenbaoapi/target/clschina-saofenbaoapi-1.0.jar"
+wvjar="$gitFolder/weixin-velocity/target/clschina-weixin-velocity-1.0.jar"
+admjar="$gitFolder/saofenbaoadmin/target/clschina-saofenbaoadmin-1.0.jar"
+wxjar="$gitFolder/saofenbaoweixin/target/clschina-saofenbao-1.0.jar"
+vendorjar="$gitFolder/saofenbaovendor/target/clschina-saofenbaovendor-1.0.jar"
+apijar="$gitFolder/saofenbaoapi/target/clschina-saofenbaoapi-1.0.jar"
 
-cd /web/git/saofenbao/weixin-velocity
+cd "$gitFolder/weixin-velocity"
 mvn -D maven.test.skip=true clean install
 
 if [ -f "$wvjar" ] 
@@ -36,7 +38,7 @@ else
    exit
 fi
 
-cd /web/git/saofenbao/saofenbaoadmin
+cd "$gitFolder/saofenbaoadmin"
 mvn -D maven.test.skip=true clean install
 
 if [ -f "$admjar" ]; then
@@ -50,7 +52,7 @@ else
 fi
 
 
-cd /web/git/saofenbao/saofenbaoweixin
+cd "$gitFolder/saofenbaoweixin"
 mvn -D maven.test.skip=true clean install
 
 if [ -f "$wxjar" ]; then
@@ -63,7 +65,8 @@ else
    exit
 fi
 
-cd /web/git/saofenbao/saofenbaovendor
+
+cd "$gitFolder/saofenbaovendor"
 mvn -D maven.test.skip=true clean install
 
 if [ -f "$vendorjar" ]; then
@@ -76,7 +79,7 @@ else
    exit
 fi
 
-cd /web/git/saofenbao/saofenbaoapi
+cd "$gitFolder/saofenbaoapi"
 mvn -D maven.test.skip=true clean install
 
 if [ -f "$apijar" ]; then
@@ -90,18 +93,18 @@ else
 fi
 
 
-cp "$wvjar" /web/git/saofenbao/saofenbaoweixin/src/main/webapp/WEB-INF/lib/
-cp "$wvjar" /web/git/saofenbao/saofenbaovendor/src/main/webapp/WEB-INF/lib/
+cp "$wvjar" "$gitFolder/saofenbaoweixin/src/main/webapp/WEB-INF/lib/"
+cp "$wvjar" "$gitFolder/saofenbaovendor/src/main/webapp/WEB-INF/lib/"
 
 
 
-cp "$admjar" /web/git/saofenbao/saofenbaoadmin/src/main/webapp/WEB-INF/lib/
-cp "$admjar" /web/git/saofenbao/saofenbaoweixin/src/main/webapp/WEB-INF/lib/
-cp "$admjar" /web/git/saofenbao/saofenbaovendor/src/main/webapp/WEB-INF/lib/
-cp "$admjar" /web/git/saofenbao/saofenbaoapi/src/main/webapp/WEB-INF/lib/
+cp "$admjar" "$gitFolder/saofenbaoadmin/src/main/webapp/WEB-INF/lib/"
+cp "$admjar" "$gitFolder/saofenbaoweixin/src/main/webapp/WEB-INF/lib/"
+cp "$admjar" "$gitFolder/saofenbaovendor/src/main/webapp/WEB-INF/lib/"
+cp "$admjar" "$gitFolder/saofenbaoapi/src/main/webapp/WEB-INF/lib/"
 
-cp "$wxjar" /web/git/saofenbao/saofenbaoweixin/src/main/webapp/WEB-INF/lib/
-cp "$wxjar" /web/git/saofenbao/saofenbaoapi/src/main/webapp/WEB-INF/lib/
+cp "$wxjar" "$gitFolder/saofenbaoweixin/src/main/webapp/WEB-INF/lib/"
+cp "$wxjar" "$gitFolder/saofenbaoapi/src/main/webapp/WEB-INF/lib/"
 
 
 cp "$apijar" /web/git/saofenbao/saofenbaoapi/src/main/webapp/WEB-INF/lib/
