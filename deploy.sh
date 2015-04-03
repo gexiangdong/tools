@@ -6,6 +6,10 @@
 
 gitFolder="/web/git/saofenbao"
 
+#
+# 需要在使用此程序前先从远程库克隆
+# #git clone /home/git/project/saofenbao.git
+#
 cd "$gitFolder"
 git fetch
 git checkout -f origin/develop
