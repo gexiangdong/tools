@@ -1,7 +1,8 @@
 #!bin/bash
 
-##
+## 
 ##从git中取maven project，打包并发布到tomcat目录下
+## 调用时，需要增加一个分支名称的参数，例如 build.sh develop
 ##
 
 gitFolder="/web/git/saofenbao"
@@ -11,14 +12,26 @@ gitFolder="/web/git/saofenbao"
 # #git clone /home/git/project/saofenbao.git
 #
 cd "$gitFolder"
+version=$1
+echo "$version"
+cd /web/temp/saofenbao
 git fetch
-git checkout -f origin/develop
+ret=$?
+if ! test "$ret" -eq 0
+then
+  echo "Failed to git fetch"
+  exit 11
+fi
+
+git checkout -f origin/$version
+ret=$?
+if ! test "$ret" -eq 0
+then
+  echo "$? Failed while checkout $version"
+  exit 12
+fi
 
 chown -R tomcat7:developer /web/git/saofenbao/
-
-if [ "$1" = "norestart" ]; then
-   exit
-fi
 
 
 
