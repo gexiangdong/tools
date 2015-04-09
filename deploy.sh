@@ -20,7 +20,7 @@ ret=$?
 if ! test "$ret" -eq 0
 then
   echo "Failed to git fetch"
-  exit 11
+  exit 1
 fi
 
 git checkout -f origin/$version
@@ -28,7 +28,7 @@ ret=$?
 if ! test "$ret" -eq 0
 then
   echo "$? Failed while checkout $version"
-  exit 12
+  exit 2
 fi
 
 chown -R tomcat7:developer /web/git/saofenbao/
@@ -52,7 +52,7 @@ else
    echo "**************ERROR**************"
    echo "can NOT compile Weixin-Velocity project."
    echo ""
-   exit
+   exit 3
 fi
 
 cd "$gitFolder/saofenbaoadmin"
@@ -65,7 +65,7 @@ else
    echo "**************ERROR**************"
    echo "  can NOT compile saofenbaoadmin project."
    echo ""
-   exit
+   exit 4
 fi
 
 
@@ -79,7 +79,7 @@ else
    echo "**************ERROR**************"
    echo "  can NOT compile saofenbaoweixin project."
    echo ""
-   exit
+   exit 5
 fi
 
 
@@ -93,7 +93,7 @@ else
    echo "**************ERROR**************"
    echo "  can NOT compile saofenbaovendor project."
    echo ""
-   exit
+   exit 6
 fi
 
 cd "$gitFolder/saofenbaoapi"
@@ -106,7 +106,7 @@ else
    echo "**************ERROR**************"
    echo "  can NOT compile saofenbaoapi project."
    echo ""
-   exit
+   exit 7
 fi
 
 
@@ -124,22 +124,7 @@ cp "$wxjar" "$gitFolder/saofenbaoweixin/src/main/webapp/WEB-INF/lib/"
 cp "$wxjar" "$gitFolder/saofenbaoapi/src/main/webapp/WEB-INF/lib/"
 
 
-cp "$apijar" /web/git/saofenbao/saofenbaoapi/src/main/webapp/WEB-INF/lib/
 
-cp "$vendorjar" /web/git/saofenbao/saofenbaovendor/src/main/webapp/WEB-INF/lib/
-
-
-
-chown -R tomcat7:developer /web/git/saofenbao/
-
-if [ "$1" != "norestart" ]; then
-	#/etc/init.d/tomcat7 restart
-	rm /var/log/tomcat7/* -rf
-	rm /web/projects/logs/* -rf
-	service tomcat7 restart
-        chmod 666 /web/git/logs/*
-fi
-
-
+exit 0
 
 
