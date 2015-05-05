@@ -23,7 +23,9 @@ then
   exit 1
 fi
 
-git checkout -f origin/$version
+#不能在版本前固定增加origin，否则在checkout TAG时出错
+git checkout -f  $version
+
 ret=$?
 if ! test "$ret" -eq 0
 then
