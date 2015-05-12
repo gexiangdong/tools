@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <title>打包程序</title>
+  <style type="text/css">
+    div.branch{height:25px}
+  </style>
+  <script>
+    var reqOutput;
+    var packaging = false;
+      
+    function queryProcess(){ 
+         reqOutput=new XMLHttpRequest();
+         reqOutput.onreadystatechange=function(){
+            if (reqOutput.readyState==4 && reqOutput.status==200){
+                var e = document.getElementById("message");
+                e.innerText = reqOutput.responseText;
+                e.scrollTop = e.scrollHeight
+            }else if(reqOutput.readyStats == 4){
+                alert("ERROR: " + reqOutput.status);
+            }
+         }
+         reqOutput.open("GET", "output/out.txt",true);
+         reqOutput.send();
+
+         if(packaging){
+            window.setTimeout("queryProcess()", 100);
+         }
+    }
+
+    function makePackage(){
+         var reqPackage;
+         if (window.XMLHttpRequest){
+             // code for IE7+, Firefox, Chrome, Opera, Safari
+             reqPackage=new XMLHttpRequest();
+         }else{// code for IE6, IE5
+            reqPackage=new ActiveXObject("Microsoft.XMLHTTP");
+         }
+         var ver = window.document.getElementById("package").value;
+         packaging = true;
+         reqPackage.open("GET","package.py?version=" + ver + "&rnd=" + (new Date().getTime()),true);
+         reqPackage.send();
+         reqPackage.onreadystatechange=function(){
+            if (reqPackage.readyState==4 && reqPackage.status==200){
+                var responseback=reqPackage.responseText;
+                var dataObj;
+                try{
+                    dataObj=eval("("+responseback+")");
+                }catch(err){
+                    alert(err + '\n\n' + responseback);
+                    return;
+                }
+                packaging=false;
+                var strStatus = dataObj.status;
+                var strFile = dataObj.file;
+                if(responseback=null){
+                   alert("error.");
+                }else if (strStatus!=0){
+                   alert("error while building package, see build log for detail.");
+                }else {
+                   window.location.href = strFile;
+                }
+           }
+         }
+         window.setTimeout(queryProcess, 2000);
+    }
+
+
+    function addVersion(v){
+        document.getElementById("package").value=v;
+    }
+ </script>
+ </head>
+ <body>
+     分支名称：<input type="test" id="package" value="">
+        <button type="button" onclick="makePackage()" >下载</button></br>
+    <a href="javascript:addVersion('develop');">develop</a>
+    <a href="javascript:addVersion('prerelease');">prerelease</a>
+    <script>
+        var now = new Date();
+        var m = now.getMonth();
+        var d = now.getDate();
+        var v = "ver" + now.getFullYear()+((m+1)<10?"0":"")+(m+1)+(d<10?"0":"")+d + "-1";
+        var html = '<a href="javascript:addVersion(\'' + v + '\');">' + v + '</a>';
+        document.write(html);
+    </script>
+    </br>
+    <br />
+    <textarea rows="33" cols="125" id="message">
+    </textare>
+  </body>
+</html>
