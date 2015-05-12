@@ -37,7 +37,7 @@
          }else{// code for IE6, IE5
             reqPackage=new ActiveXObject("Microsoft.XMLHTTP");
          }
-         var ver = window.document.getElementById("package").value;
+         var ver = window.document.getElementById("version").value;
          packaging = true;
          reqPackage.open("GET","package.py?version=" + ver + "&rnd=" + (new Date().getTime()),true);
          reqPackage.send();
@@ -68,12 +68,12 @@
 
 
     function addVersion(v){
-        document.getElementById("package").value=v;
+        document.getElementById("version").value=v;
     }
  </script>
  </head>
  <body>
-     分支名称：<input type="test" id="package" value="">
+     分支名称：<input type="text" id="version" value="">
         <button type="button" onclick="makePackage()" >下载</button></br>
     <a href="javascript:addVersion('develop');">develop</a>
     <a href="javascript:addVersion('prerelease');">prerelease</a>
@@ -85,7 +85,7 @@
         var html = '<a href="javascript:addVersion(\'' + v + '\');">' + v + '</a>';
         document.write(html);
     </script>
-    </br>
+    <br />
     <br />
     <textarea rows="33" cols="125" id="message">
     </textare>
