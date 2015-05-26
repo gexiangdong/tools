@@ -1,0 +1,22 @@
+#logsummary{}
+#logsummary ul{list-style: none; margin:0px; padding:0px; height:30px;}
+#logsummary li{list-style: none; float: left; }
+#logsummary li a{display:block; padding:5px 20px;}
+#logsummary li.current a{font-size:16px; font-weight:bold;}
+
+#logsummary table{width: 100%; border-collapse: collapse; border:1px solid #999;}
+#logsummary table th{text-align:center; border:1px solid #999;}
+#logsummary table td{text-align:center; border:1px solid #999;}
+
+#logsummary tr.score10{background-color:#D4F9D0;}
+#logsummary tr.score9{background-color:#D4F9D0;}
+#logsummary tr.score8{background-color:#D4F9D0;}
+#logsummary tr.score7{background-color:#D4F9D0;}
+#logsummary tr.score6{background-color:#D4F9D0;}
+#logsummary tr.score5{background-color:#FFF;}
+#logsummary tr.score4{background-color:#FFF9B6;}
+#logsummary tr.score3{background-color:#FFD2D2;}
+#logsummary tr.score2{background-color:#FFD2D2;}
+#logsummary tr.score1{background-color:#FFD2D2;}
+#logsummary tr.score0{background-color:#FFD2D2;}
+
