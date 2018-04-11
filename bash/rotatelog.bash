@@ -8,6 +8,8 @@
 
 today=$(date +%Y%m%d-%H%M)
 now=`date +%s`
+d1=$(date +%Y-%m-%d)
+d2=$(date -d "yesterday" '+%Y-%m-%d')
 
 for file in /web/tomcats/*/logs/*
 do
@@ -17,26 +19,36 @@ do
         bkname=`basename "$file"`
         folder=$(dirname "$file")
         mkdir -p ${folder}/backup
+        #如果是自动按日轮询的日志，今天和昨天的不压缩，以便查看日志方便
+        if [[ $file = *"$d1"* ]]; then
+            echo "omit $file"
+            continue
+        fi
+        if [[ $file = *"$d2"* ]]; then
+            echo "omit $file"
+            continue
+        fi
+
         #判断文件大小
-		fileSize=`ls -l "${file}" | awk '{ print $5 }'`
-		minSize=$((10))
-		if [ $fileSize -gt $minSize ]
-		then
-		    #文件size大于10byte, 则备份，小的不备份了
-		    echo "backup ${file}"
-		    cat "${file}" | gzip >  "${folder}/backup/${bkname}-${today}.gz"
-		fi
-		#判断文件时间
-		fileTime=`stat -c %Y "${file}"`
-		if [ $[ $now - $fileTime ] -gt 82800 ]
-		then
-			#23个小时没修改过文件了, 删除
-			echo "delete ${file}"
-			rm "${file}"
-		else
-			#23个小时内用的文件，清空内容，以便tomcat等服务可以继续写日志
-			# echo "truncate ${file}"
-			echo "" > "${file}"
-		fi
+        fileSize=`ls -l "${file}" | awk '{ print $5 }'`
+        minSize=$((10))
+        if [ $fileSize -gt $minSize ]
+        then
+            #文件size大于10byte, 则备份，小的不备份了
+            echo "backup ${file}"
+            #cat "${file}" | gzip >  "${folder}/backup/${bkname}-${today}.gz"
+        fi
+        #判断文件时间
+        fileTime=`stat -c %Y "${file}"`
+        if [ $[ $now - $fileTime ] -gt 82800 ]
+        then
+            #23个小时没修改过文件了, 删除
+            echo "delete ${file}"
+            #rm "${file}"
+        else
+            #23个小时内用的文件，清空内容，以便tomcat等服务可以继续写日志
+            echo "truncate ${file}"
+            #echo "" > "${file}"
+        fi
     fi
 done
