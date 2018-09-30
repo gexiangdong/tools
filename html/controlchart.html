@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Control Chart</title>
+<meta name="viewport" content="width=device-width,initial-scale=0.5,user-scalable=yes,maximum-scale=2,minimum-scale=0.5">
+<style type="text/css">
+.statistics{z-index:888; position:absolute; left: 50px; top: 50px; width:950px; padding:20px;}
+.statistics h1{text-align: center; padding: 0px; margin: 0px 0px 20px 0px; position:relative;}
+.statistics canvas{width:900px; height:400px;}
+.statistics .comment{color:#999; font-size:12px; margin:5px 10px;}
+</style>
+</head>
+<body>
+<div id="graphic" class="statistics"><h1>控制图</h1><canvas id="incrementgraphic" width="1800" height="800"></canvas>
+<p class="comment">控制图：在控制线外有点表示失控，连续在均值上或下7个点，也表示失控</p>
+</div>
+<script type="text/javascript">
+var data = new Array();
+data['09/01']=48;
+data['09/02']=41;
+data['09/03']=59;
+data['09/04']=56;
+data['09/05']=43;
+data['09/06']=48;
+data['09/07']=39;
+data['09/08']=47;
+data['09/09']=61;
+data['09/10']=48;
+data['09/11']=63;
+data['09/12']=42;
+data['09/13']=49;
+data['09/14']=45;
+data['09/15']=38;
+data['09/16']=31;
+data['09/17']=53;
+data['09/18']=43;
+data['09/19']=54;
+data['09/20']=50;
+data['09/21']=42;
+data['09/22']=20;
+data['09/23']=23;
+data['09/24']=41;
+data['09/25']=59;
+data['09/26']=52;
+data['09/27']=46;
+data['09/28']=49;
+data['09/29']=53;
+data['09/30']=30;
+
+window.onload = function(){
+        drawGraphic(); 
+    };
+
+function drawGraphic(){
+    var cav = document.getElementById("incrementgraphic");
+    var ctx = cav.getContext("2d");
+    const coor = {
+        "px": 40,
+        "py": cav.height - 20,
+        "dotx": 60,
+        "doty": 8,
+        "width": cav.width,
+        "height": cav.height, 
+        "color": "#EEEEEE",  //坐标网格颜色
+        "multiple": 3   //控制图使用几倍标准差作为控制线
+    };
+
+    drawCoordinateAxis(ctx, coor);
+    var dataStat = calculateStatistics(data);
+    drawControllChart(ctx, coor, dataStat);
+}
+
+//画坐标轴 
+function drawCoordinateAxis(ctx, coorParm){
+    ctx.beginPath();
+    ctx.strokeStyle="#999999";
+    ctx.lineWidth=1;
+    ctx.moveTo(coorParm.px, coorParm.py);
+    ctx.lineTo(coorParm.px, 0);
+    ctx.moveTo(coorParm.px, coorParm.py);
+    ctx.lineTo(coorParm.width, coorParm.py);
+    ctx.stroke();
+    ctx.strokeStyle = coorParm.color;
+    ctx.font = "18px Arial";
+    ctx.textAlign = "right";
+    for(var i=1; i<20; i++){
+        var y = coorParm.py - i * 10 * coorParm.doty;
+        if(y<=0){
+            break;
+        }
+        ctx.moveTo(coorParm.px, y);
+        ctx.lineTo(coorParm.width, y);
+        ctx.fillText( i * 10, coorParm.px - 4, y + 8);
+    }
+    ctx.stroke();
+    ctx.fill();
+    ctx.closePath();
+    var i = 0;
+    ctx.textAlign = "center";
+    var sum = 0, count = 0;
+    for(var key in data){
+        var x = coorParm.px + i * coorParm.dotx;
+        i++;
+        // 竖向坐标线
+        ctx.beginPath();
+        ctx.strokeStyle = coorParm.color;
+        ctx.moveTo(x, coorParm.py);
+        ctx.lineTo(x, 0);
+        ctx.fillStyle = "#000000";
+        ctx.fillText(key, x, coorParm.py + 20);
+        ctx.stroke();
+        ctx.fill();
+        ctx.closePath();
+    }
+}
+
+//计算统计信息
+function calculateStatistics(){
+    var sum = 0, count = 0;
+    for(var key in data){
+        //统计总值、总数
+        var c = data[key];
+        if( c > 0){
+            count ++;
+            sum += c;
+        }
+    }
+    //计算平均值
+    var avg = count > 0 ? sum / count : 0;
+    var sumVariance = 0;
+    var countVariance = 0;
+    //计算方差
+    for(var key in data){
+        var c = data[key];
+        if(c > 0){
+            sumVariance += Math.pow((c - avg), 2);
+            countVariance ++;
+        }
+    } 
+    var variance = sumVariance / countVariance;  //均方差
+    //标准差（Standard Deviation） ，中文环境中又常称均方差，是离均差平方的算术平均数的平方根，用σ表示。 标准差是方差的算术平方根。
+    var sd = Math.sqrt(variance); //标准差
+
+    return {
+        "sum": sum,             // 总和
+        "count": count,         // 总个数
+        "avg": avg,             // 平均值
+        "variance": variance,   // 均方差
+        "sd": sd                // 标准差
+    };
+}
+
+//画控制图
+function drawControllChart(ctx, coorParm, dataStat){    
+    ctx.beginPath();
+    //平均值线，控制中线
+    ctx.strokeStyle = "#ef7f56";
+    var avgY = Math.round(coorParm.py - dataStat.avg * coorParm.doty);
+    ctx.moveTo(coorParm.px, avgY);
+    ctx.lineTo(coorParm.width, avgY);
+    //控制上下线, 通常3倍标准差
+    var ucl = dataStat.avg + coorParm.multiple * dataStat.sd;
+    var lcl = dataStat.avg - coorParm.multiple * dataStat.sd;
+    var ytop = coorParm.py - Math.round(ucl * coorParm.doty);
+    var ybottom = coorParm.py - Math.round(lcl * coorParm.doty);
+    ctx.moveTo(coorParm.px, ytop);
+    ctx.lineTo(coorParm.width, ytop);
+    ctx.moveTo(coorParm.px, ybottom);
+    ctx.lineTo(coorParm.width, ybottom);
+    ctx.stroke();
+
+    ctx.fillStyle = "#000000";
+    ctx.font = "24px Arial";
+    ctx.textAlign = "right";
+    ctx.textBaseline="top"; 
+    ctx.fillText("均值: " + Math.round(dataStat.avg * 100) / 100.0 + " 标准差: " + Math.round(dataStat.sd * 100) / 100.0,
+                     coorParm.width - 10, 10);
+    ctx.fillText("CL: " + Math.round(dataStat.avg * 100) / 100.0, coorParm.width - 10, 40); //控制线 Control Line (均值)
+    ctx.fillText("UCL: " + Math.round(ucl * 100) / 100.0 + " (+" + coorParm.multiple + "σ)", 
+                    coorParm.width - 10, 70); //控制上线 Upper Control Line
+    ctx.fillText("LCL: " + Math.round(lcl * 100) / 100.0 + " (-" + coorParm.multiple + "σ)", coorParm.width - 10, 100); //控制下线 Lower Control Line
+    ctx.fill();
+    
+    //是否在控制之中，并画数据线
+    var uc = 0, lc = 0;
+    var lostControl = false;
+    var previousY = 0;
+    i = 0;
+    for(var key in data){
+        var x = coorParm.px + i * coorParm.dotx;
+        i++;
+        ctx.fillStyle = "#205ec1";
+        //数据折线
+        var c = data[key];
+        if( c > 0){
+            if(c > dataStat.avg){
+                lc = 0;
+                uc ++;
+            }else if(c < dataStat.avg){
+                uc = 0;
+                lc ++;
+            }
+            if(lc >= 7 || uc >= 7){
+                //失控
+                lostControl = true;
+                ctx.fillStyle = "#FF0000";
+            }
+            if(c > ucl || c < lcl){
+                //失控
+                lostControl = true;
+                ctx.fillStyle = "#FF0000";
+            }
+        }
+        var dy = coorParm.py - c * coorParm.doty;
+        ctx.beginPath();
+        if(c > 0){
+            //每个数据点画个圆点
+            ctx.arc(x, dy, 4, 0, Math.PI * 2, true);
+        }
+        if(i > 1 && c > 0){
+            //折线
+            ctx.strokeStyle = "#0000FF";
+            ctx.moveTo(x - coorParm.dotx, previousY);
+            ctx.lineTo(x, dy);
+            ctx.stroke();
+        }
+        ctx.fill();
+        ctx.closePath();
+        previousY = dy;
+    }
+    ctx.beginPath();
+    if(lostControl){
+        ctx.fillStyle = "#FF0000";
+        ctx.font = "48px Arial";
+        ctx.textAlign = "left";
+        ctx.textBaseline="top"; 
+        ctx.fillText("失控", 10, 10);       
+    }
+    ctx.closePath();    
+}
+
+
+</script>
+</body>
+</html>
